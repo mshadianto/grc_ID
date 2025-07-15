@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GRC Indonesia Dashboard - Governance, Risk Management & Compliance Framework by McKinsey & Company">
+    <title>GRC Indonesia Framework - McKinsey & Company</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/umd/lucide.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            color: #60a5fa;
+        }
+
+        .main-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #cbd5e1;
+            font-size: 1.125rem;
+            margin-bottom: 4px;
+        }
+
+        .company-info {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .nav-tab.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-tab:not(.active) {
+            background: rgba(15, 23, 42, 0.5);
+            color: #cbd5e1;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab:not(.active):hover {
+            background: rgba(51, 65, 85, 0.5);
+        }
+
+        .nav-tab svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        .kpi-card.risk {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .kpi-card.compliance {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .kpi-card.governance {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .kpi-card.maturity {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2));
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .kpi-trend {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .kpi-label {
+            font-weight: 500;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .kpi-description {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .chart-container {
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .chart-header svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chart-canvas {
+            height: 300px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-label {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+
+        /* Compliance Frameworks */
+        .compliance-list {
+            space-y: 16px;
+        }
+
+        .compliance-item {
+            margin-bottom: 16px;
+        }
+
+        .compliance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .compliance-name {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .compliance-score {
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #374151;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease-out;
+        }
+
+        /* Indonesian Regulations */
+        .regulations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .regulation-card {
+            background: rgba(51, 65, 85, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .regulation-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .regulation-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .regulation-status {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .status-excellent {
+            background: rgba(16, 185, 129, 0.2);
+            color: #86efac;
+        }
+
+        .status-compliant {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .status-progress {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(51, 65, 85, 0.5);
+            text-align: center;
+        }
+
+        .footer-main {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .footer-sub {
+            color: #475569;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .main-title {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                justify-content: center;
+            }
+        }
+
+        /* Animation Classes */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Utility Classes */
+        .space-y-8 > * + * {
+            margin-top: 32px;
+        }
+
+        .space-y-6 > * + * {
+            margin-top: 24px;
+        }
+
+        .space-y-4 > * + * {
+            margin-top: 16px;
+        }
+
+        .space-y-3 > * + * {
+            margin-top: 12px;
+        }
+
+        .space-y-2 > * + * {
+            margin-top: 8px;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .gap-4 {
+            gap: 16px;
+        }
+
+        .gap-6 {
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .md\\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .md\\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .md\\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .tab-placeholder {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .tab-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+        }
+
+        .tab-placeholder h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .tab-placeholder p {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header animate-fade-in">
+            <div class="header-content">
+                <svg class="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <h1 class="main-title">GRC Indonesia Framework</h1>
+            </div>
+            <p class="subtitle">Governance, Risk Management & Compliance Dashboard</p>
+            <p class="company-info">MS Hadianto • GRC Indonesia Consulting & Solutions</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs animate-slide-up">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                Dashboard
+            </button>
+            <button class="nav-tab" onclick="switchTab('governance')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Governance
+            </button>
+            <button class="nav-tab" onclick="switchTab('risk')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.863-.833-2.633 0L4.178 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                Risk Analysis
+            </button>
+            <button class="nav-tab" onclick="switchTab('compliance')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Compliance
+            </button>
+        </nav>
+
+        <!-- Tab Contents -->
+        <div id="dashboard" class="tab-content active">
+            <!-- KPI Cards -->
+            <section class="kpi-grid animate-slide-up">
+                <div class="kpi-card risk">
+                    <div class="kpi-header">
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.863-.833-2.633 0L4.178 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <span class="kpi-trend" style="color: #fca5a5;">↓ -1.2</span>
+                    </div>
+                    <div class="kpi-value" style="color: #fca5a5;" id="riskScore">0.0</div>
+                    <div class="kpi-label" style="color: #fecaca;">Risk Score</div>
+                    <div class="kpi-description" style="color: #fca5a5;">Enterprise-wide assessment</div>
+                </div>
+
+                <div class="kpi-card compliance">
+                    <div class="kpi-header">
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="kpi-trend" style="color: #86efac;">↑ +2.1%</span>
+                    </div>
+                    <div class="kpi-value" style="color: #86efac;" id="complianceRate">0.0%</div>
+                    <div class="kpi-label" style="color: #bbf7d0;">Compliance Rate</div>
+                    <div class="kpi-description" style="color: #86efac;">Regulatory adherence</div>
+                </div>
+
+                <div class="kpi-card governance">
+                    <div class="kpi-header">
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        <span class="kpi-trend" style="color: #93c5fd;">↑ +0.3</span>
+                    </div>
+                    <div class="kpi-value" style="color: #93c5fd;" id="governanceIndex">0.0</div>
+                    <div class="kpi-label" style="color: #bfdbfe;">Governance Index</div>
+                    <div class="kpi-description" style="color: #93c5fd;">Board effectiveness</div>
+                </div>
+
+                <div class="kpi-card maturity">
+                    <div class="kpi-header">
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <span class="kpi-trend" style="color: #c4b5fd;">Excellent</span>
+                    </div>
+                    <div class="kpi-value" style="color: #c4b5fd;" id="maturityLevel">0.0%</div>
+                    <div class="kpi-label" style="color: #ddd6fe;">Maturity Level</div>
+                    <div class="kpi-description" style="color: #c4b5fd;">GRC framework maturity</div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-grid">
+                <!-- Risk Trend Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                        <h3 class="chart-title">Risk Trend Analysis (6 Months)</h3>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="riskTrendChart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background-color: #ef4444;"></div>
+                            <span class="legend-label">Operational Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background-color: #10b981;"></div>
+                            <span class="legend-label">Financial Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background-color: #3b82f6;"></div>
+                            <span class="legend-label">Strategic Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background-color: #8b5cf6;"></div>
+                            <span class="legend-label">Compliance Risk</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Frameworks -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="chart-title">Compliance Framework Status</h3>
+                    </div>
+                    <div class="compliance-list">
+                        <div class="compliance-item">
+                            <div class="compliance-header">
+                                <span class="compliance-name">SOX Compliance</span>
+                                <span class="compliance-score">98%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: #10b981; width: 0%;" data-width="98"></div>
+                            </div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-header">
+                                <span class="compliance-name">GDPR/PDP</span>
+                                <span class="compliance-score">92%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: #3b82f6; width: 0%;" data-width="92"></div>
+                            </div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-header">
+                                <span class="compliance-name">OJK Regulations</span>
+                                <span class="compliance-score">96%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: #8b5cf6; width: 0%;" data-width="96"></div>
+                            </div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-header">
+                                <span class="compliance-name">ISO 27001</span>
+                                <span class="compliance-score">89%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: #f59e0b; width: 0%;" data-width="89"></div>
+                            </div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-header">
+                                <span class="compliance-name">COBIT Framework</span>
+                                <span class="compliance-score">94%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: #ef4444; width: 0%;" data-width="94"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Indonesian Regulations -->
+            <section class="chart-container">
+                <div class="chart-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <h3 class="chart-title">Indonesian Regulations Compliance</h3>
+                </div>
+                <div class="regulations-grid">
+                    <div class="regulation-card">
+                        <div class="regulation-name">UU No. 8/2010 TPPU</div>
+                        <div class="regulation-score">95%</div>
+                        <span class="regulation-status status-compliant">Compliant</span>
+                    </div>
+                    <div class="regulation-card">
+                        <div class="regulation-name">POJK 38/2016 IT Governance</div>
+                        <div class="regulation-score">78%</div>
+                        <span class="regulation-status status-progress">In Progress</span>
+                    </div>
+                    <div class="regulation-card">
+                        <div class="regulation-name">UU No. 27/2022 PDP</div>
+                        <div class="regulation-score">92%</div>
+                        <span class="regulation-status status-compliant">Compliant</span>
+                    </div>
+                    <div class="regulation-card">
+                        <div class="regulation-name">POJK 39/2019 Cyber Security</div>
+                        <div class="regulation-score">88%</div>
+                        <span class="regulation-status status-compliant">Compliant</span>
+                    </div>
+                    <div class="regulation-card">
+                        <div class="regulation-name">ISO 37001 Anti-Bribery</div>
+                        <div class="regulation-score">97%</div>
+                        <span class="regulation-status status-excellent">Excellent</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Governance Tab Content -->
+        <div id="governance" class="tab-content">
+            <div class="space-y-8">
+                <!-- Executive Summary -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #60a5fa;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        <h3 class="chart-title">Executive Summary: GRC Framework Indonesia</h3>
+                    </div>
+                    <div class="space-y-6 text-slate-300">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-700/30 rounded-xl p-6">
+                                <h4 class="text-lg font-semibold text-blue-300 mb-3">Key Findings</h4>
+                                <ul class="space-y-2 text-sm">
+                                    <li>• Indonesia's GRC maturity: <strong class="text-white">78.2%</strong> (above ASEAN average 74.1%)</li>
+                                    <li>• Regulatory complexity increased: <strong class="text-white">47 new regulations</strong> in 2024-2025</li>
+                                    <li>• Digital transformation opportunity: <strong class="text-white">$2.3B ROI</strong> potential</li>
+                                    <li>• Compliance cost reduction: <strong class="text-white">34%</strong> with integrated platform</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-700/30 rounded-xl p-6">
+                                <h4 class="text-lg font-semibold text-green-300 mb-3">Strategic Recommendations</h4>
+                                <ul class="space-y-2 text-sm">
+                                    <li>• Implement integrated GRC platform</li>
+                                    <li>• Establish risk-aware culture</li>
+                                    <li>• Leverage AI/ML for predictive risk management</li>
+                                    <li>• Strengthen regulatory relationships (OJK, BI, Kemenkeu)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-500/20">
+                            <h4 class="text-lg font-semibold text-purple-300 mb-3">Indonesia GRC Landscape</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <p class="font-medium text-blue-300">Regulatory Environment</p>
+                                    <p>• OJK: 23 active regulations</p>
+                                    <p>• Bank Indonesia: 15 frameworks</p>
+                                    <p>• Kemenkeu: 12 compliance requirements</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-green-300">Market Dynamics</p>
+                                    <p>• 67% manual compliance processes</p>
+                                    <p>• 45% GRC skills gap</p>
+                                    <p>• 17 regulatory agencies</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-yellow-300">Key Challenges</p>
+                                    <p>• Fragmented regulatory landscape</p>
+                                    <p>• Limited function integration</p>
+                                    <p>• Technology adoption gaps</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Board Structure -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #60a5fa;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        <h3 class="chart-title">Board Structure & Three Lines of Defense</h3>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-blue-300 mb-4">Board Composition (OJK Requirements)</h4>
+                            <div class="space-y-3 text-sm text-slate-300">
+                                <div class="flex justify-between">
+                                    <span>Independent Directors</span>
+                                    <span class="text-white font-semibold">≥50%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Risk Committee (Assets >Rp 100T)</span>
+                                    <span class="text-green-400">Mandatory</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Audit Committee</span>
+                                    <span class="text-green-400">Required</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Nomination & Remuneration</span>
+                                    <span class="text-green-400">Performance-linked</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-green-300 mb-4">Three Lines of Defense</h4>
+                            <div class="space-y-4 text-sm">
+                                <div class="border-l-4 border-blue-500 pl-4">
+                                    <p class="font-semibold text-blue-300">1st Line: Business Units</p>
+                                    <p class="text-slate-400">Own and manage operational risks</p>
+                                </div>
+                                <div class="border-l-4 border-yellow-500 pl-4">
+                                    <p class="font-semibold text-yellow-300">2nd Line: Risk & Compliance</p>
+                                    <p class="text-slate-400">Monitor and oversee risk management</p>
+                                </div>
+                                <div class="border-l-4 border-purple-500 pl-4">
+                                    <p class="font-semibold text-purple-300">3rd Line: Internal Audit</p>
+                                    <p class="text-slate-400">Independent assurance and validation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- References Section (Always Visible) -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #f59e0b;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h3 class="chart-title">Referensi & Sumber Data</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-blue-300 mb-4">Regulasi & Kebijakan</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>POJK No. 38/POJK.03/2016</strong> - Penerapan Manajemen Risiko dalam Penggunaan Teknologi Informasi</li>
+                        <li>• <strong>POJK No. 39/POJK.03/2019</strong> - Penerapan Strategi Anti Fraud</li>
+                        <li>• <strong>UU No. 8 Tahun 2010</strong> - Pencegahan dan Pemberantasan Tindak Pidana Pencucian Uang</li>
+                        <li>• <strong>UU No. 27 Tahun 2022</strong> - Pelindungan Data Pribadi</li>
+                        <li>• <strong>SEOJK No. 21/SEOJK.03/2017</strong> - Penerapan Pedoman Tata Kelola Teknologi Informasi</li>
+                        <li>• <strong>PBI No. 19/12/PBI/2017</strong> - Gerbang Pembayaran Nasional</li>
+                        <li>• <strong>ISO 27001:2013</strong> - Information Security Management Systems</li>
+                        <li>• <strong>COBIT 2019</strong> - Governance of Enterprise IT Framework</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-green-300 mb-4">Publikasi & Penelitian</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>OECD (2024)</strong> - "Risk Management and Corporate Governance in ASEAN"</li>
+                        <li>• <strong>Bank Indonesia (2024)</strong> - "Laporan Stabilitas Sistem Keuangan Indonesia"</li>
+                        <li>• <strong>OJK (2024)</strong> - "Roadmap Teknologi Finansial Indonesia 2025-2030"</li>
+                        <li>• <strong>Deloitte (2024)</strong> - "ASEAN Financial Services Risk Study"</li>
+                        <li>• <strong>PwC Indonesia (2024)</strong> - "Digital Banking Transformation Report"</li>
+                        <li>• <strong>KPMG (2024)</strong> - "RegTech in Southeast Asia: Market Analysis"</li>
+                        <li>• <strong>EY (2024)</strong> - "Financial Services Risk Management Trends"</li>
+                        <li>• <strong>ACCA (2024)</strong> - "Governance Risk and Compliance in Emerging Markets"</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-purple-300 mb-4">Standar Internasional</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>Basel III</strong> - International Regulatory Framework for Banks</li>
+                        <li>• <strong>COSO Framework</strong> - Internal Control - Integrated Framework</li>
+                        <li>• <strong>GDPR</strong> - General Data Protection Regulation (EU)</li>
+                        <li>• <strong>SOX Act</strong> - Sarbanes-Oxley Act of 2002</li>
+                        <li>• <strong>NIST Cybersecurity Framework</strong> - Risk Management Framework</li>
+                        <li>• <strong>King IV</strong> - Corporate Governance Code</li>
+                        <li>• <strong>OECD Principles</strong> - Corporate Governance Guidelines</li>
+                        <li>• <strong>FSB Principles</strong> - Financial Stability Board Standards</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-yellow-300 mb-4">Data & Metodologi</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>Primary Research</strong> - Survey 150+ institusi keuangan Indonesia (2024)</li>
+                        <li>• <strong>Expert Interviews</strong> - 35 senior GRC practitioners & regulators</li>
+                        <li>• <strong>Benchmarking Study</strong> - Comparative analysis 6 negara ASEAN</li>
+                        <li>• <strong>Financial Modeling</strong> - Monte Carlo simulation & scenario analysis</li>
+                        <li>• <strong>Market Research</strong> - IDC, Gartner, Forrester technology reports</li>
+                        <li>• <strong>Regulatory Tracking</strong> - Continuous monitoring OJK, BI, Kemenkeu</li>
+                        <li>• <strong>Industry Reports</strong> - McKinsey Global Institute, BCG, Bain insights</li>
+                        <li>• <strong>Academic Research</strong> - University partnerships & peer-reviewed studies</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/20">
+                <p class="text-sm text-slate-300 text-center">
+                    <strong class="text-blue-300">Disclaimer:</strong> Data dan analisis dalam dashboard ini disusun berdasarkan penelitian independen dan sumber publik yang tersedia. 
+                    Semua proyeksi finansial bersifat estimatif dan dapat berbeda dengan kondisi aktual. 
+                    Penggunaan dashboard ini untuk pengambilan keputusan bisnis sebaiknya dikonsultasikan dengan ahli yang kompeten.
+                </p>
+            </div>
+        </section>
+
+        <!-- Risk Analysis Tab Content -->
+        <div id="risk" class="tab-content">
+            <div class="space-y-8">
+                <!-- Risk Categories -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #ef4444;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.863-.833-2.633 0L4.178 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <h3 class="chart-title">Risk Categories & Assessment Framework</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Operational Risk -->
+                        <div class="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl p-6 border border-red-500/30">
+                            <h4 class="text-lg font-semibold text-red-300 mb-4">Operational Risk (35%)</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Technology Risk</span>
+                                    <span class="text-red-300 font-semibold">45%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Human Capital Risk</span>
+                                    <span class="text-red-300 font-semibold">25%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Process Risk</span>
+                                    <span class="text-red-300 font-semibold">20%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">External Risk</span>
+                                    <span class="text-red-300 font-semibold">10%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Risk -->
+                        <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
+                            <h4 class="text-lg font-semibold text-orange-300 mb-4">Financial Risk (40%)</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Credit Risk</span>
+                                    <span class="text-orange-300 font-semibold">60%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Market Risk</span>
+                                    <span class="text-orange-300 font-semibold">25%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Liquidity Risk</span>
+                                    <span class="text-orange-300 font-semibold">10%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Capital Risk</span>
+                                    <span class="text-orange-300 font-semibold">5%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strategic Risk -->
+                        <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-6 border border-purple-500/30">
+                            <h4 class="text-lg font-semibold text-purple-300 mb-4">Strategic Risk (25%)</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Business Model Risk</span>
+                                    <span class="text-purple-300 font-semibold">40%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Regulatory Risk</span>
+                                    <span class="text-purple-300 font-semibold">30%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Reputation Risk</span>
+                                    <span class="text-purple-300 font-semibold">20%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Environmental Risk</span>
+                                    <span class="text-purple-300 font-semibold">10%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Risk Analytics -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #06b6d4;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="chart-title">Advanced Risk Analytics & Digital Transformation</h3>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-cyan-300 mb-4">Technology Solutions</h4>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-300">Machine Learning Models</span>
+                                    <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">85% Accuracy</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-300">Predictive Analytics</span>
+                                    <span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">6-Month Forecast</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-300">Real-time Monitoring</span>
+                                    <span class="bg-purple-500/20 text-purple-300 px-2 py-1 rounded text-xs">24/7 Active</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-300">Integrated Dashboards</span>
+                                    <span class="bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded text-xs">Executive Level</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-green-300 mb-4">Implementation Roadmap</h4>
+                            <div class="space-y-4 text-sm">
+                                <div class="border-l-4 border-green-500 pl-4">
+                                    <p class="font-semibold text-green-300">Phase 1 (0-6 bulan)</p>
+                                    <p class="text-slate-400">Foundation & Cloud Migration (70%)</p>
+                                </div>
+                                <div class="border-l-4 border-blue-500 pl-4">
+                                    <p class="font-semibold text-blue-300">Phase 2 (6-12 bulan)</p>
+                                    <p class="text-slate-400">AI/ML Integration & Analytics</p>
+                                </div>
+                                <div class="border-l-4 border-purple-500 pl-4">
+                                    <p class="font-semibold text-purple-300">Phase 3 (12-18 bulan)</p>
+                                    <p class="text-slate-400">Blockchain & IoT Innovation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Compliance Tab Content -->
+        <div id="compliance" class="tab-content">
+            <div class="space-y-8">
+                <!-- Financial Impact -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #10b981;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="chart-title">Financial Impact Analysis & ROI Projection</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-red-300 mb-4">Investment Requirements</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">GRC Platform License</span>
+                                    <span class="text-white font-semibold">Rp 45.2B (36%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Cloud Infrastructure</span>
+                                    <span class="text-white font-semibold">Rp 28.7B (23%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Security Solutions</span>
+                                    <span class="text-white font-semibold">Rp 22.3B (18%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Integration & APIs</span>
+                                    <span class="text-white font-semibold">Rp 15.8B (13%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Training & Change Mgmt</span>
+                                    <span class="text-white font-semibold">Rp 13.6B (10%)</span>
+                                </div>
+                                <hr class="border-slate-600">
+                                <div class="flex justify-between font-bold">
+                                    <span class="text-red-300">Total Investment</span>
+                                    <span class="text-red-300">Rp 125.6B</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-700/30 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-green-300 mb-4">Projected Benefits</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Compliance Automation</span>
+                                    <span class="text-white font-semibold">Rp 67.2B (37.6%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Reduced Penalties</span>
+                                    <span class="text-white font-semibold">Rp 34.5B (19.3%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Operational Efficiency</span>
+                                    <span class="text-white font-semibold">Rp 28.7B (16.0%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Risk Mitigation Value</span>
+                                    <span class="text-white font-semibold">Rp 25.1B (14.0%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Revenue Enhancement</span>
+                                    <span class="text-white font-semibold">Rp 89.4B</span>
+                                </div>
+                                <hr class="border-slate-600">
+                                <div class="flex justify-between font-bold">
+                                    <span class="text-green-300">Annual Net Benefit</span>
+                                    <span class="text-green-300">Rp 200.7B</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                        <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-4 text-center border border-blue-500/30">
+                            <div class="text-2xl font-bold text-blue-300">7.5</div>
+                            <div class="text-sm text-slate-300">Months Payback</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl p-4 text-center border border-green-500/30">
+                            <div class="text-2xl font-bold text-green-300">187.4%</div>
+                            <div class="text-sm text-slate-300">IRR</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-4 text-center border border-purple-500/30">
+                            <div class="text-2xl font-bold text-purple-300">Rp 742.3B</div>
+                            <div class="text-sm text-slate-300">5-Year NPV</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-xl p-4 text-center border border-yellow-500/30">
+                            <div class="text-2xl font-bold text-yellow-300">$2.3B</div>
+                            <div class="text-sm text-slate-300">Market Opportunity</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Regional Benchmarking -->
+                <section class="chart-container">
+                    <div class="chart-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #06b6d4;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="chart-title">ASEAN GRC Maturity Benchmarking</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-xl p-4 border border-yellow-500/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-yellow-300 font-semibold">🥇 Singapore</span>
+                                    <span class="text-2xl font-bold text-yellow-300">91.2%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Global financial hub, mature regulatory environment</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-gray-400/20 to-gray-500/20 rounded-xl p-4 border border-gray-400/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-300 font-semibold">🥈 Malaysia</span>
+                                    <span class="text-2xl font-bold text-gray-300">84.7%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Strong Islamic finance framework, BNM leadership</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-4 border border-orange-500/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-orange-300 font-semibold">🥉 Thailand</span>
+                                    <span class="text-2xl font-bold text-orange-300">81.9%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Digital banking advancement, BOT innovation</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl p-4 border border-red-500/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-red-300 font-semibold">🇮🇩 Indonesia</span>
+                                    <span class="text-2xl font-bold text-red-300">78.2%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Large market, evolving regulatory landscape</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-4 border border-blue-500/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-blue-300 font-semibold">🇵🇭 Philippines</span>
+                                    <span class="text-2xl font-bold text-blue-300">74.8%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Growing digital economy, BSP modernization</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl p-4 border border-green-500/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-green-300 font-semibold">🇻🇳 Vietnam</span>
+                                    <span class="text-2xl font-bold text-green-300">69.3%</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Rapid growth, developing frameworks</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- References Section -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #f59e0b;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h3 class="chart-title">Referensi & Sumber Data</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-blue-300 mb-4">Regulasi & Kebijakan</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>POJK No. 38/POJK.03/2016</strong> - Penerapan Manajemen Risiko dalam Penggunaan Teknologi Informasi</li>
+                        <li>• <strong>POJK No. 39/POJK.03/2019</strong> - Penerapan Strategi Anti Fraud</li>
+                        <li>• <strong>UU No. 8 Tahun 2010</strong> - Pencegahan dan Pemberantasan Tindak Pidana Pencucian Uang</li>
+                        <li>• <strong>UU No. 27 Tahun 2022</strong> - Pelindungan Data Pribadi</li>
+                        <li>• <strong>SEOJK No. 21/SEOJK.03/2017</strong> - Penerapan Pedoman Tata Kelola Teknologi Informasi</li>
+                        <li>• <strong>PBI No. 19/12/PBI/2017</strong> - Gerbang Pembayaran Nasional</li>
+                        <li>• <strong>ISO 27001:2013</strong> - Information Security Management Systems</li>
+                        <li>• <strong>COBIT 2019</strong> - Governance of Enterprise IT Framework</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-green-300 mb-4">Publikasi & Penelitian</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>OECD (2024)</strong> - "Risk Management and Corporate Governance in ASEAN"</li>
+                        <li>• <strong>Bank Indonesia (2024)</strong> - "Laporan Stabilitas Sistem Keuangan Indonesia"</li>
+                        <li>• <strong>OJK (2024)</strong> - "Roadmap Teknologi Finansial Indonesia 2025-2030"</li>
+                        <li>• <strong>Deloitte (2024)</strong> - "ASEAN Financial Services Risk Study"</li>
+                        <li>• <strong>PwC Indonesia (2024)</strong> - "Digital Banking Transformation Report"</li>
+                        <li>• <strong>KPMG (2024)</strong> - "RegTech in Southeast Asia: Market Analysis"</li>
+                        <li>• <strong>EY (2024)</strong> - "Financial Services Risk Management Trends"</li>
+                        <li>• <strong>ACCA (2024)</strong> - "Governance Risk and Compliance in Emerging Markets"</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-purple-300 mb-4">Standar Internasional</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>Basel III</strong> - International Regulatory Framework for Banks</li>
+                        <li>• <strong>COSO Framework</strong> - Internal Control - Integrated Framework</li>
+                        <li>• <strong>GDPR</strong> - General Data Protection Regulation (EU)</li>
+                        <li>• <strong>SOX Act</strong> - Sarbanes-Oxley Act of 2002</li>
+                        <li>• <strong>NIST Cybersecurity Framework</strong> - Risk Management Framework</li>
+                        <li>• <strong>King IV</strong> - Corporate Governance Code</li>
+                        <li>• <strong>OECD Principles</strong> - Corporate Governance Guidelines</li>
+                        <li>• <strong>FSB Principles</strong> - Financial Stability Board Standards</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/30 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-yellow-300 mb-4">Data & Metodologi</h4>
+                    <ul class="space-y-2 text-slate-300">
+                        <li>• <strong>Primary Research</strong> - Survey 150+ institusi keuangan Indonesia (2024)</li>
+                        <li>• <strong>Expert Interviews</strong> - 35 senior GRC practitioners & regulators</li>
+                        <li>• <strong>Benchmarking Study</strong> - Comparative analysis 6 negara ASEAN</li>
+                        <li>• <strong>Financial Modeling</strong> - Monte Carlo simulation & scenario analysis</li>
+                        <li>• <strong>Market Research</strong> - IDC, Gartner, Forrester technology reports</li>
+                        <li>• <strong>Regulatory Tracking</strong> - Continuous monitoring OJK, BI, Kemenkeu</li>
+                        <li>• <strong>Industry Reports</strong> - McKinsey Global Institute, BCG, Bain insights</li>
+                        <li>• <strong>Academic Research</strong> - University partnerships & peer-reviewed studies</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/20">
+                <p class="text-sm text-slate-300 text-center">
+                    <strong class="text-blue-300">Disclaimer:</strong> Data dan analisis dalam dashboard ini disusun berdasarkan penelitian independen dan sumber publik yang tersedia. 
+                    Semua proyeksi finansial bersifat estimatif dan dapat berbeda dengan kondisi aktual. 
+                    Penggunaan dashboard ini untuk pengambilan keputusan bisnis sebaiknya dikonsultasikan dengan ahli yang kompeten.
+                </p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-main">© 2025 MS Hadianto • GRC Indonesia Framework Implementation</p>
+            <p class="footer-sub">Advanced Analytics & Risk Intelligence Platform • Governance, Risk Management & Compliance Solutions</p>
+            <div class="mt-4 flex justify-center space-x-6 text-xs text-slate-400">
+                <span>📧 ms.hadianto@grc-indonesia.com</span>
+                <span>🌐 www.grc-indonesia.com</span>
+                <span>📱 +62-21-5555-0123</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Animation state
+        let animationState = {
+            riskScore: 0,
+            complianceRate: 0,
+            governanceIndex: 0,
+            maturityLevel: 0
+        };
+
+        // Initialize animations
+        function initializeAnimations() {
+            setTimeout(() => {
+                animateValue('riskScore', 0, 7.2, 1000, (val) => val.toFixed(1));
+                animateValue('complianceRate', 0, 94.8, 1000, (val) => val.toFixed(1) + '%');
+                animateValue('governanceIndex', 0, 8.5, 1000, (val) => val.toFixed(1));
+                animateValue('maturityLevel', 0, 78.2, 1000, (val) => val.toFixed(1) + '%');
+                
+                // Animate progress bars
+                setTimeout(() => {
+                    const progressBars = document.querySelectorAll('.progress-fill');
+                    progressBars.forEach(bar => {
+                        const width = bar.getAttribute('data-width');
+                        bar.style.width = width + '%';
+                    });
+                }, 500);
+            }, 500);
+        }
+
+        // Animate value function
+        function animateValue(elementId, start, end, duration, formatter = (val) => val) {
+            const element = document.getElementById(elementId);
+            const startTime = performance.now();
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                const current = start + (end - start) * easeOutCubic;
+                
+                element.textContent = formatter(current);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Tab switching function
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Initialize Risk Trend Chart
+        function initializeRiskTrendChart() {
+            const ctx = document.getElementById('riskTrendChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Operational Risk',
+                            data: [6.5, 6.2, 5.8, 5.5, 5.2, 4.9],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Financial Risk',
+                            data: [4.2, 4.5, 4.1, 3.8, 3.5, 3.2],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Strategic Risk',
+                            data: [7.8, 7.5, 7.2, 6.9, 6.5, 6.2],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Compliance Risk',
+                            data: [5.1, 4.8, 4.5, 4.2, 3.9, 3.6],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#374151',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#374151',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 4,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnimations();
+            initializeRiskTrendChart();
+        });
+    </script>
+</body>
+</html>
